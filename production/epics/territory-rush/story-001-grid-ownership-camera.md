@@ -1,7 +1,7 @@
 # Story 001: Grid, ownership & camera
 
 > **Epic**: territory-rush
-> **Status**: In Progress
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: coarse
@@ -30,13 +30,13 @@ Grid data model with per-cell owner, a tile renderer, a follow-camera, and a sta
 
 *From `design/game-brief.md` (Player goal & fail state + MVP feature 1), scoped to this story:*
 
-- [ ] Grid is a fixed-size 2D array of cells (size read from a data file, default 60x60); each cell stores an owner id (0 = unowned).
-- [ ] Grid exposes `get_owner(cell)`, `set_owner(cell, id)`, `in_bounds(cell)` and a cell-changed signal.
-- [ ] A 3x3 starting territory is assigned to the player at run start, and `territory_share(id)` returns owned cells / total cells.
-- [ ] The grid renders each owner in a distinct flat color; unowned cells render as the neutral background.
-- [ ] A camera follows the player head smoothly and never shows beyond the grid edge.
-- [ ] Grid size, cell pixel size and start-territory size are data-driven, not hardcoded.
-- [ ] Launching the game shows the grid with the player's start territory (retained screenshot).
+- [x] Grid is a fixed-size 2D array of cells (size read from a data file, default 60x60); each cell stores an owner id (0 = unowned).
+- [x] Grid exposes `get_owner(cell)`, `set_owner(cell, id)`, `in_bounds(cell)` and a cell-changed signal.
+- [x] A 3x3 starting territory is assigned to the player at run start, and `territory_share(id)` returns owned cells / total cells.
+- [x] The grid renders each owner in a distinct flat color; unowned cells render as the neutral background.
+- [x] A camera follows the player head smoothly and never shows beyond the grid edge.
+- [x] Grid size, cell pixel size and start-territory size are data-driven, not hardcoded.
+- [x] Launching the game shows the grid with the player's start territory (retained screenshot).
 
 ---
 
@@ -73,3 +73,15 @@ Grid data model with per-cell owner, a tile renderer, a follow-camera, and a sta
 
 - Depends on: None
 - Unlocks: Story 002
+
+---
+
+## Completion Notes
+
+**Completed**: 2026-10-16 — verdict COMPLETE WITH NOTES. 7/7 acceptance criteria pass.
+**Evidence**: `production/qa/evidence/story-001-grid-ownership-camera/01-start-territory.png`; headless GridModel self-check (exit 0); camera follow/clamp check (exit 0); parse check on all 6 scripts (exit 0). Tests waived at `qa.level: minimal`.
+**Deferred**: camera smoothing *feel* (needs a playtest — `/team-qa`).
+**Advisory**:
+- In-code fallback defaults (60x60, 48 px, colors) mirror `assets/data/grid_config.json`; real values come from the data file.
+- `PLAYER_ID = 1` is a constant in `src/main.gd`; story 005 (bots) needs a proper player registry.
+- Godot 4.6 Camera2D / Image / `draw_texture_rect` APIs are not covered by `docs/engine-reference/godot/`; they ran cleanly in 4.6 but are unchecked against the reference.
