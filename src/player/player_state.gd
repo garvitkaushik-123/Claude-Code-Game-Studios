@@ -7,8 +7,9 @@ extends RefCounted
 ## Rules per tick: (1) a pending turn is applied (cell boundary), (2) the head
 ## moves one cell in its direction, (3) outside own land the entered cell is
 ## appended to the ordered unique trail. Cell ownership is never changed here.
-## Not handled yet: loop closure/claim (story 003), kills (story 004) - this
-## class only reports [signal trail_self_hit] and [signal out_of_bounds].
+## Claiming is done by the caller via TerritoryClaim on [signal returned_home],
+## followed by [method clear_trail] (story 003). Not handled yet: kills (story 004) -
+## this class only reports [signal trail_self_hit] and [signal out_of_bounds].
 ##
 ## Usage:
 ##   var state := PlayerState.new(grid, 1, Vector2i(30, 30))
@@ -30,6 +31,8 @@ signal trail_self_hit(cell: Vector2i)
 signal out_of_bounds(cell: Vector2i)
 ## Emitted when the head enters player-owned land (from non-owned) with a non-empty trail.
 signal returned_home
+## Emitted by [method clear_trail] after the trail has been emptied (story 003).
+signal trail_cleared
 
 var _grid: GridModel
 var _owner_id: int
@@ -117,6 +120,16 @@ func get_trail_size() -> int:
 ## True if [param cell] is part of the trail.
 func has_trail_cell(cell: Vector2i) -> bool:
 	return _trail_set.has(cell)
+
+
+## Empties the trail (e.g. after a successful claim) and emits [signal trail_cleared].
+## Does nothing if the trail is already empty. Never changes cell ownership.
+func clear_trail() -> void:
+	if _trail.is_empty():
+		return
+	_trail.clear()
+	_trail_set.clear()
+	trail_cleared.emit()
 
 
 func _step() -> void:

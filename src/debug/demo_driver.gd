@@ -8,7 +8,10 @@ extends Node
 signal direction_requested(dir: Vector2i)
 
 ## [tick, direction] pairs. Includes a 180-degree reversal at tick 3 (must be ignored).
-## Path: right 6, (ignored left), down 4, left 7, up -> returns to start territory.
+## Path: right 6, (ignored left), down 4, left 7, up -> re-enters the 3x3 start
+## territory at tick 20 (loop closes, enclosed land is claimed, trail cleared),
+## then keeps heading up and leaves land again at tick 23 (fresh trail), proving
+## story 002 behaviour survives a claim.
 const STEPS: Array = [
 	[0, Vector2i.RIGHT],
 	[3, Vector2i.LEFT],

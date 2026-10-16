@@ -3,6 +3,9 @@ extends Node2D
 ## and the follow camera. Implements stories 001-002 of the territory-rush epic.
 
 const PLAYER_ID: int = 1
+## Emitted after a loop is closed and land claimed; [param claimed_count] = cells gained.
+signal loop_closed(claimed_count: int)
+
 ## Debug-only user arg (after "--") that replaces player input with a scripted path.
 const DEMO_ARG: String = "--demo-path"
 
@@ -18,6 +21,9 @@ func _ready() -> void:
 	model.assign_start_territory(spawn, PLAYER_ID, config.start_territory_size)
 
 	var state := PlayerState.new(model, PLAYER_ID, spawn)
+
+	# Loop closure (story 003): claim enclosed land, then clear the trail.
+	state.returned_home.connect(_on_returned_home.bind(model, state))
 
 	var trail_view := TrailView.new()
 	trail_view.setup(state, model.get_size(), config)
@@ -41,3 +47,9 @@ func _ready() -> void:
 	var cam := FollowCamera.new()
 	add_child(cam)
 	cam.setup(head, config)
+
+
+func _on_returned_home(model: GridModel, state: PlayerState) -> void:
+	var claimed: int = TerritoryClaim.claim(model, state.get_owner_id(), state.get_trail())
+	state.clear_trail()
+	loop_closed.emit(claimed)

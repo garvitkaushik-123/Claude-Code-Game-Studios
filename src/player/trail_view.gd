@@ -28,6 +28,7 @@ func setup(state: PlayerState, grid_size: Vector2i, config: GridConfig) -> void:
 	_image = Image.create_empty(grid_size.x, grid_size.y, false, Image.FORMAT_RGBA8)
 	_texture = ImageTexture.create_from_image(_image)
 	state.trail_cell_added.connect(_on_trail_cell_added)
+	state.trail_cleared.connect(_on_trail_cleared)
 	for cell: Vector2i in state.get_trail():
 		_on_trail_cell_added(cell)
 
@@ -37,6 +38,14 @@ func _on_trail_cell_added(cell: Vector2i) -> void:
 	if not _flush_queued:
 		_flush_queued = true
 		_flush.call_deferred()
+
+
+## Erases every trail pixel (the trail was cleared, e.g. after a claim).
+func _on_trail_cleared() -> void:
+	_dirty.clear()
+	_image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	_texture.update(_image)
+	queue_redraw()
 
 
 func _flush() -> void:
