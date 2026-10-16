@@ -47,7 +47,7 @@ jobs:
           curl -sSL -o templates.tpz "${base}/Godot_v${GODOT_VERSION}_export_templates.tpz"
           tdir="$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR}"
           mkdir -p "$tdir"
-          unzip -q -j templates.tpz "templates/android_debug.apk" "templates/android_source.zip" "templates/version.txt" -d "$tdir"
+          unzip -q -j templates.tpz "templates/android_debug.apk" "templates/android_release.apk" "templates/android_source.zip" "templates/version.txt" -d "$tdir"
           godot --version
 
       - name: Create debug keystore and editor settings
@@ -74,7 +74,9 @@ jobs:
       - name: Export debug APK
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/territory-rush-debug.apk
+          echo "--- SDK:"; ls "${ANDROID_HOME}" "${ANDROID_HOME}/build-tools" "${ANDROID_HOME}/platforms" || true
+          echo "--- templates:"; ls -la "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR}"
+          godot --headless --verbose --path . --export-debug "Android" build/territory-rush-debug.apk
           ls -la build
 
       - uses: actions/upload-artifact@v4
