@@ -1,12 +1,12 @@
 # Story 002: Steering & trail
 
 > **Epic**: territory-rush
-> **Status**: Ready
+> **Status**: In Progress
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: coarse
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: —
+> **Last Updated**: 2026-10-16
 
 ## Context
 

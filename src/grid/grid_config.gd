@@ -1,7 +1,7 @@
 class_name GridConfig
 extends RefCounted
 ## Data-driven grid/camera settings loaded from assets/data/grid_config.json.
-## Implements: design/game-brief.md MVP feature 1 (story 001).
+## Implements: design/game-brief.md MVP feature 1 (story 001); steering/trail keys added in story 002.
 ##
 ## Usage:
 ##   var config := GridConfig.load_from()
@@ -18,7 +18,14 @@ var neutral_color: Color = Color("#e8ecef")
 var grid_line_color: Color = Color("#d3d9de")
 var player_color: Color = Color("#2e86de")
 var rival_colors: Array[Color] = [Color("#e84a5f"), Color("#2ecc71"), Color("#f6b93b")]
-var placeholder_head_speed_px_per_sec: float = 400.0
+## Fixed logical ticks (cells moved) per second; head speed = this * cell_size_px.
+var ticks_per_second: float = 5.5
+## Minimum drag distance (screen px) before a swipe turns the head.
+var min_swipe_distance_px: float = 24.0
+## Trail tint = owner colour lightened by this amount (0..1)...
+var trail_lighten: float = 0.35
+## ...and drawn with this alpha (0..1).
+var trail_alpha: float = 0.55
 
 
 ## Loads the config from [param path]; returns defaults if the file is missing or invalid.
@@ -55,14 +62,23 @@ func color_for_owner(owner_id: int) -> Color:
 	return rival_colors[(owner_id - 2) % rival_colors.size()]
 
 
+## Trail colour for an owner id: the owner colour, lightened and translucent.
+func trail_color_for_owner(owner_id: int) -> Color:
+	var c: Color = color_for_owner(owner_id).lightened(clampf(trail_lighten, 0.0, 1.0))
+	c.a = clampf(trail_alpha, 0.0, 1.0)
+	return c
+
+
 func _apply(d: Dictionary) -> void:
 	grid_width = maxi(1, int(d.get("grid_width", grid_width)))
 	grid_height = maxi(1, int(d.get("grid_height", grid_height)))
 	cell_size_px = maxi(1, int(d.get("cell_size_px", cell_size_px)))
 	start_territory_size = maxi(1, int(d.get("start_territory_size", start_territory_size)))
 	camera_smoothing_speed = float(d.get("camera_smoothing_speed", camera_smoothing_speed))
-	placeholder_head_speed_px_per_sec = float(
-		d.get("placeholder_head_speed_px_per_sec", placeholder_head_speed_px_per_sec))
+	ticks_per_second = maxf(0.1, float(d.get("ticks_per_second", ticks_per_second)))
+	min_swipe_distance_px = maxf(0.0, float(d.get("min_swipe_distance_px", min_swipe_distance_px)))
+	trail_lighten = float(d.get("trail_lighten", trail_lighten))
+	trail_alpha = float(d.get("trail_alpha", trail_alpha))
 	neutral_color = _color(d, "neutral_color", neutral_color)
 	grid_line_color = _color(d, "grid_line_color", grid_line_color)
 	player_color = _color(d, "player_color", player_color)
