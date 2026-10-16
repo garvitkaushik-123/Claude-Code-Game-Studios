@@ -20,16 +20,8 @@ env:
 
 jobs:
   build-apk:
-    name: build-apk (${{ matrix.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    continue-on-error: ${{ matrix.variant == 'gradle' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # Diagnostic: Godot rejects the preset headlessly with an empty reason, so
-        # try variants side by side and keep whichever exports.
-        variant: [apk, gradle]
     steps:
       - uses: actions/checkout@v4
 
@@ -85,29 +77,14 @@ jobs:
       - name: Import project
         run: godot --headless --path . --import
 
-      - name: Apply preset variant (${{ matrix.variant }})
-        run: |
-          case "${{ matrix.variant }}" in
-            apk)
-              : ;;
-            gradle)
-              sed -i 's/^gradle_build\/use_gradle_build=.*/gradle_build\/use_gradle_build=true/' export_presets.cfg
-              mkdir -p android/build
-              unzip -q "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR}/android_source.zip" -d android/build
-              echo -n "${GODOT_TEMPLATE_DIR}" > android/.build_version ;;
-          esac
-          grep -E "unique_name|signed|use_gradle_build" export_presets.cfg
-
       - name: Export debug APK
         run: |
           mkdir -p build
-          echo "--- SDK:"; ls "${ANDROID_HOME}" "${ANDROID_HOME}/build-tools" "${ANDROID_HOME}/platforms" || true
-          echo "--- templates:"; ls -la "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR}"
-          godot --headless --verbose --path . --export-debug "Android" build/territory-rush-debug.apk
+          godot --headless --path . --export-debug "Android" build/territory-rush-debug.apk
           ls -la build
 
       - uses: actions/upload-artifact@v4
         with:
-          name: territory-rush-debug-apk-${{ matrix.variant }}
+          name: territory-rush-debug-apk
           path: build/territory-rush-debug.apk
           if-no-files-found: error
