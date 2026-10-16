@@ -30,12 +30,13 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-
+      # The ubuntu-24.04 runner image ships the Android SDK; ANDROID_HOME points at it.
       - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "build-tools;35.0.1" "platforms;android-35"
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          sdkm="$(ls -d "${ANDROID_HOME}"/cmdline-tools/*/bin/sdkmanager | head -1)"
+          yes | "$sdkm" --licenses > /dev/null || true
+          "$sdkm" "platform-tools" "build-tools;35.0.1" "platforms;android-35"
 
       - name: Install Godot and Android export templates
         run: |
