@@ -1,0 +1,12 @@
+{
+  "grid_width": 60,
+  "grid_height": 60,
+  "cell_size_px": 48,
+  "start_territory_size": 3,
+  "camera_smoothing_speed": 5.0,
+  "neutral_color": "#e8ecef",
+  "grid_line_color": "#d3d9de",
+  "player_color": "#2e86de",
+  "rival_colors": ["#e84a5f", "#2ecc71", "#f6b93b", "#9b59b6", "#16c2c2", "#e67e22"],
+  "placeholder_head_speed_px_per_sec": 400.0
+}
