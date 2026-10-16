@@ -1,0 +1,14 @@
+; Engine configuration file. Created by /setup-engine.
+; run/main_scene is intentionally unset: set it in the editor (or via /dev-story)
+; once a first scene exists.
+
+config_version=5
+
+[application]
+
+config/name="Paper Clone"
+config/features=PackedStringArray("4.6", "Forward Plus")
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
