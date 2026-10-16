@@ -13,7 +13,7 @@
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
 | 001 | Grid, ownership & camera | Logic | Complete | N/A |
-| 002 | Steering & trail | Logic | Ready | N/A |
+| 002 | Steering & trail | Logic | Complete | N/A |
 | 003 | Loop closure & territory claim | Logic | Ready | N/A |
 | 004 | Collisions & elimination | Integration | Ready | N/A |
 | 005 | Bot rivals | Logic | Ready | N/A |
