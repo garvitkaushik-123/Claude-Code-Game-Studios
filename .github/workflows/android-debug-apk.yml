@@ -23,12 +23,13 @@ jobs:
     name: build-apk (${{ matrix.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    continue-on-error: ${{ matrix.variant == 'gradle' }}
     strategy:
       fail-fast: false
       matrix:
         # Diagnostic: Godot rejects the preset headlessly with an empty reason, so
         # try variants side by side and keep whichever exports.
-        variant: [pkgname, nosign, gradle]
+        variant: [apk, gradle]
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +42,12 @@ jobs:
       - name: Install Android SDK packages
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME}"
+          ls -la "${ANDROID_HOME}/cmdline-tools"
+          # Godot looks for cmdline-tools/latest; the runner image only has a versioned dir.
+          if [ ! -e "${ANDROID_HOME}/cmdline-tools/latest" ]; then
+            first="$(ls "${ANDROID_HOME}/cmdline-tools" | head -1)"
+            sudo ln -s "${ANDROID_HOME}/cmdline-tools/${first}" "${ANDROID_HOME}/cmdline-tools/latest"
+          fi
           sdkm="$(ls -d "${ANDROID_HOME}"/cmdline-tools/*/bin/sdkmanager | head -1)"
           yes | "$sdkm" --licenses > /dev/null || true
           "$sdkm" "platform-tools" "build-tools;35.0.1" "platforms;android-35"
@@ -81,10 +88,8 @@ jobs:
       - name: Apply preset variant (${{ matrix.variant }})
         run: |
           case "${{ matrix.variant }}" in
-            pkgname)
-              sed -i 's/^package\/unique_name=.*/package\/unique_name="org.territoryrush.game"/' export_presets.cfg ;;
-            nosign)
-              sed -i 's/^package\/signed=.*/package\/signed=false/' export_presets.cfg ;;
+            apk)
+              : ;;
             gradle)
               sed -i 's/^gradle_build\/use_gradle_build=.*/gradle_build\/use_gradle_build=true/' export_presets.cfg
               mkdir -p android/build
@@ -98,11 +103,11 @@ jobs:
           mkdir -p build
           echo "--- SDK:"; ls "${ANDROID_HOME}" "${ANDROID_HOME}/build-tools" "${ANDROID_HOME}/platforms" || true
           echo "--- templates:"; ls -la "$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATE_DIR}"
-          godot --headless --verbose --path . --export-debug "Android" build/territory-rush-debug.apk || echo "EXPORT FAILED (${{ matrix.variant }})"
+          godot --headless --verbose --path . --export-debug "Android" build/territory-rush-debug.apk
           ls -la build
 
       - uses: actions/upload-artifact@v4
         with:
           name: territory-rush-debug-apk-${{ matrix.variant }}
           path: build/territory-rush-debug.apk
-          if-no-files-found: warn
+          if-no-files-found: error
