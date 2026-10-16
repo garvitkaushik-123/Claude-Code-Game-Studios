@@ -12,3 +12,10 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 [rendering]
 
 renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
